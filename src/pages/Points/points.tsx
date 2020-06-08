@@ -53,11 +53,6 @@ const Points = () => {
                 items: selectedItems,
             }
         }).then(response => {
-            if (!response.data.length) {
-                Alert.alert('Notificação', 'Nenhum ponto de coleta encontrado para a região.');
-                handleNavigateBack();
-                return;
-            }
             setPoints(response.data)
         });
     }, [selectedItems]);
@@ -76,7 +71,7 @@ const Points = () => {
             setInitialPosition([latitude, longitude])
         }
 
-        loadPosition();
+        loadPosition().then(r => {});
 
     }, []);
 
