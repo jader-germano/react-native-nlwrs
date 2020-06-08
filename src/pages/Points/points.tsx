@@ -53,7 +53,7 @@ const Points = () => {
                 items: selectedItems,
             }
         }).then(response => {
-            if (response.data === []) {
+            if (!response.data.length) {
                 Alert.alert('Notificação', 'Nenhum ponto de coleta encontrado para a região.');
                 handleNavigateBack();
                 return;

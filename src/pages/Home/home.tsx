@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react' ;
 import { Feather as Icon } from '@expo/vector-icons'
-import { Image, ImageBackground, Text, View, KeyboardAvoidingView, StyleSheet, Platform } from "react-native";
+import { Image, ImageBackground, Text, View, KeyboardAvoidingView, StyleSheet, Platform, Alert } from "react-native";
 import { RectButton } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
@@ -35,6 +35,11 @@ const Home = () => {
     const navigation = useNavigation();
 
     function handleNavigateToPoints() {
+        if (!uf || !city) {
+            Alert.alert('Notificação', 'Por favor, selecione ambos Estado e Cidade.');
+            return;
+        }
+
         navigation.navigate('Points', {
             uf,
             city
@@ -80,7 +85,10 @@ const Home = () => {
             <ImageBackground
                 source={require('../../assets/home-background.png')}
                 style={styles.container}
-                imageStyle={{ width: 274, height: 368 }}
+                imageStyle={{
+                    width: 274,
+                    height: 368
+                }}
             >
                 <View style={styles.main}>
                     <Image source={require('../../assets/logo.png')}/>
@@ -92,7 +100,7 @@ const Home = () => {
                 <View style={styles.container}>
                     <RNPickerSelect
                         placeholder={{
-                            label: 'Selecione uma UF...',
+                            label: 'Selecione um Estado...',
                             value: null,
                         }}
                         items={ufs}
