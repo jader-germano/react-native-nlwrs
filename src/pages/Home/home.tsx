@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react' ;
 import { Feather as Icon } from '@expo/vector-icons'
-import { Alert, Image, ImageBackground, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from "react-native";
+import { Image, ImageBackground, Text, View, KeyboardAvoidingView, StyleSheet, Platform, Alert } from "react-native";
 import { RectButton } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
@@ -40,6 +40,7 @@ const Home = () => {
                 const ufInitials = response.data.map(ufIbge => {
                     return {
                         value: ufIbge.sigla,
+                        label: ufIbge.sigla
                     } as Uf;
                 }).sort((a,b) => a.label.toLowerCase() > b.label.toLowerCase() ? 1: -1);
                 setUfs(ufInitials);
@@ -55,8 +56,9 @@ const Home = () => {
                 const cityNames = response.data.map(ufIbge => {
                     return {
                         value: ufIbge.nome,
-                    } as City;
-                }).sort((a,b) => a.value.toLowerCase() > b.value.toLowerCase() ? 1: -1);
+                        label: ufIbge.nome
+                    } as Uf;
+                }).sort((a,b) => a.label.toLowerCase() > b.label.toLowerCase() ? 1: -1);
                 setCities(cityNames);
             });
     }, [uf]);

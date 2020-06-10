@@ -58,7 +58,9 @@ const Detail = () => {
             recipients: [data.collectPoint.email],
         })
     }
-
+    if (!data.collectPoint) {
+        return null;
+    }
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <View style={styles.container}>
