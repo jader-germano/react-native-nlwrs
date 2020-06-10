@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react' ;
+import React, { useEffect, useState } from 'react';
 import { Feather as Icon } from '@expo/vector-icons'
-import { Image, ImageBackground, Text, View, KeyboardAvoidingView, StyleSheet, Platform, Alert } from "react-native";
+import { Alert, Image, ImageBackground, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from "react-native";
 import { RectButton } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
@@ -34,6 +34,33 @@ const Home = () => {
 
     const navigation = useNavigation();
 
+    useEffect(() => {
+        axios.get<IBGEUFResponse[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados')
+            .then(response => {
+                const ufInitials = response.data.map(ufIbge => {
+                    return {
+                        value: ufIbge.sigla,
+                    } as Uf;
+                }).sort((a,b) => a.label.toLowerCase() > b.label.toLowerCase() ? 1: -1);
+                setUfs(ufInitials);
+            });
+    }, []);
+
+    useEffect(() => {
+        if (!uf) {
+            return;
+        }
+        axios.get<IBGECityResponse[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`)
+            .then(response => {
+                const cityNames = response.data.map(ufIbge => {
+                    return {
+                        value: ufIbge.nome,
+                    } as City;
+                }).sort((a,b) => a.value.toLowerCase() > b.value.toLowerCase() ? 1: -1);
+                setCities(cityNames);
+            });
+    }, [uf]);
+
     function handleNavigateToPoints() {
         if (!uf || !city) {
             Alert.alert('Notificação', 'Por favor, selecione ambos Estado e Cidade.');
@@ -45,37 +72,6 @@ const Home = () => {
             city
         });
     }
-
-    useEffect(() => {
-        axios.get<IBGEUFResponse[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados')
-            .then(response => {
-                const ufInitials = response.data.map(uf => {
-                    const value = {
-                        value: uf.sigla,
-                        label: uf.sigla
-                    } as Uf;
-                    return value;
-                });
-                setUfs(ufInitials);
-            });
-    }, []);
-
-    useEffect(() => {
-        if (!uf) {
-            return;
-        }
-        axios.get<IBGECityResponse[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`)
-            .then(response => {
-                const cityNames = response.data.map(uf => {
-                    const value = {
-                        value: uf.nome,
-                        label: uf.nome
-                    } as City;
-                    return value;
-                });
-                setCities(cityNames);
-            });
-    }, [uf]);
 
     return (
         <KeyboardAvoidingView
@@ -104,9 +100,7 @@ const Home = () => {
                             value: null,
                         }}
                         items={ufs}
-                        onValueChange={(value) => {
-                            setUf(value);
-                        }}
+                        onValueChange={(value) => setUf(value)}
                         style={{ ...styles }}
                         value={uf}
                         useNativeAndroidPickerStyle={false} //android only
@@ -117,9 +111,7 @@ const Home = () => {
                             value: null,
                         }}
                         items={cities}
-                        onValueChange={(value) => {
-                            setCity(value);
-                        }}
+                        onValueChange={(value) => setCity(value)}
                         style={{ ...styles }}
                         value={city}
                         useNativeAndroidPickerStyle={false} //android only
