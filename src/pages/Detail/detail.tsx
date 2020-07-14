@@ -6,12 +6,14 @@ import { RectButton } from 'react-native-gesture-handler';
 import api from "../../services/api";
 import * as MailComposer from 'expo-mail-composer';
 
+import Spinner from 'react-native-loading-spinner-overlay';
+
 interface Params {
     point_id: number;
 }
 
 interface Data {
-    collectPoints: {
+    collectPoint: {
         image: string,
         image_url: string,
         name: string,
@@ -26,8 +28,9 @@ interface Data {
 }
 
 const Detail = () => {
-    const [data, setData] = useState<Data>({} as Data);
 
+    const [data, setData] = useState<Data>({} as Data);
+    const [spinner, setSpinner] = useState<boolean>(true);
     const navigation = useNavigation();
     const route = useRoute();
 
@@ -36,50 +39,57 @@ const Detail = () => {
     useEffect(() => {
         api.get(`collect-point/${routeParams.point_id}`).then(response => {
             setData(response.data);
+            setSpinner(false);
         });
-    }, [])
+
+    }, []);
 
     function handleNavigateBack() {
         navigation.goBack();
     }
 
     function handleWhatsapp() {
-        Linking.openURL(`whatsapp://send?phone=${data.collectPoints.whatsapp}&text=Tenho interesse sobre coleta de resíduos. `)
+        Linking.openURL(`whatsapp://send?phone=${data.collectPoint.whatsapp}&text=Tenho interesse sobre coleta de resíduos. `)
     }
 
     function handlwComposeMail() {
         MailComposer.composeAsync({
             subject: 'Interesse na coleta de resíduos',
-            recipients: [data.collectPoints.email],
+            recipients: [data.collectPoint.email],
         })
     }
-
-    if (!data.collectPoints) {
+    if (!data.collectPoint) {
         return null;
     }
-
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <View style={styles.container}>
                 <TouchableOpacity onPress={handleNavigateBack}>
                     <Icon name="arrow-left" size={20} color="#34cb79"/>
                 </TouchableOpacity>
+                <View>
+                    <Spinner
+                        visible={spinner}
+                        textContent={'Loading...'}
+                        textStyle={styles.spinnerTextStyle}
+                    />
+                </View>
                 <Image style={styles.pointImage}
-                    source={{ uri: data.collectPoints.image_url }}/>
+                    source={{ uri: data.collectPoint.image_url }}/>
 
-                <Text style={styles.pointName}>{data.collectPoints.name}</Text>
+                <Text style={styles.pointName}>{data.collectPoint.name}</Text>
                 <Text style={styles.pointItems}>
-                    {data.items.map(item => item.title).join(', ')}
+                    {data.items?.map(item => item.title).join(', ')}
                 </Text>
                 <View style={styles.address}>
                     <Text style={styles.addressTitle}>Endereço</Text>
-                    <Text style={styles.addressContent}>{data.collectPoints.city}, {data.collectPoints.uf}</Text>
+                    <Text style={styles.addressContent}>{`${data.collectPoint.city}, ${data.collectPoint.uf}`}</Text>
                 </View>
             </View>
             <View style={styles.footer}>
                 <RectButton style={styles.button} onPress={handleWhatsapp}>
                     <FontAwesome name="whatsapp" size={20} color="#FFF"/>
-                    <Text style={styles.buttonText}> Whatsapp</Text>
+                    <Text style={styles.buttonText}>Whatsapp</Text>
                 </RectButton>
                 <RectButton style={styles.button} onPress={handlwComposeMail}>
                     <Icon name="mail" size={20} color="#FFF"/>
@@ -91,10 +101,14 @@ const Detail = () => {
 };
 
 const styles = StyleSheet.create({
+    spinnerTextStyle: {
+        color: '#FFF'
+    },
     container: {
         flex: 1,
         padding: 32,
         paddingTop: 20,
+        backgroundColor: '#F5FCFF'
     },
 
     pointImage: {

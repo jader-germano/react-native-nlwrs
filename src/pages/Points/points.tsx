@@ -71,7 +71,7 @@ const Points = () => {
             setInitialPosition([latitude, longitude])
         }
 
-        loadPosition().then(r => {});
+        loadPosition();
 
     }, []);
 
@@ -249,5 +249,4 @@ const styles = StyleSheet.create({
         fontSize: 13,
     },
 });
-
 export default Points;
